@@ -41,6 +41,22 @@ private _saveStaticsMode = [missionConfigFile >> "CfgGradPersistence", "saveStat
             [_thisStaticHash,"varName",_vehVarName] call CBA_fnc_hashSet;
             _foundStaticsVarnames deleteAt (_foundStaticsVarnames find _vehVarName);
         };
+    private _vehicleVIVCargo = (isVehicleCargo _x);
+    private _vehicleVIVCargoID = "NO_ID_SET";
+    if (!isNull _vehicleVIVCargo) then {
+	    _vehicleVIVCargoID = _vehicleVIVCargo getVariable ["vehicle_cargo_id","NO_ID_SET"];
+	    if (_vehicleVIVCargoID isEqualTo "NO_ID_SET") then {
+		private _tempPos = getPosASL _vehicleVIVCargo;
+		_vehicleVIVCargoID = format ["%1_%2_%3_%4_%5",
+			typeOf (_vehicleVIVCargo),
+			floor((_tempPos select 0)*20),
+			floor((_tempPos select 1)*20),
+			floor((_tempPos select 2)*20),
+			floor(getDir _vehicleVIVCargo)
+		];
+		_vehicleVIVCargo setVariable ["vehicle_cargo_id",_vehicleVIVCargoID];
+	    };
+    };
 
         [_thisStaticHash,"type",typeOf _x] call CBA_fnc_hashSet;
         [_thisStaticHash,"posASL",getPosASL _x] call CBA_fnc_hashSet;
@@ -50,6 +66,7 @@ private _saveStaticsMode = [missionConfigFile >> "CfgGradPersistence", "saveStat
         [_thisStaticHash,"isGradMoneymenuStorage",_x getVariable ["grad_moneymenu_isStorage",false]] call CBA_fnc_hashSet;
         [_thisStaticHash,"gradMoneymenuOwner",_x getVariable ["grad_moneymenu_owner",objNull]] call CBA_fnc_hashSet;
         [_thisStaticHash,"gradLbmMoney",_x getVariable ["grad_lbm_myFunds",objNull]] call CBA_fnc_hashSet;
+    	[_thisStaticHash,"VIVCargoID",_vehicleVIVCargoID] call CBA_fnc_hashSet;
 
         private _thisStaticVars = [_allStaticVariableClasses,_x] call FUNC(saveObjectVars);
         [_thisStaticHash,"vars",_thisStaticVars] call CBA_fnc_hashSet;

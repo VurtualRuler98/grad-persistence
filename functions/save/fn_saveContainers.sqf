@@ -25,7 +25,7 @@ private _saveContainersMode = [missionConfigFile >> "CfgGradPersistence", "saveC
 
 _allContainers = _allContainers select {
     (_x isKindOf "ThingX") &&
-    (([configfile >> "CfgVehicles" >> typeOf _x,"maximumLoad",0] call BIS_fnc_returnConfigEntry) > 0) &&
+    //(([configfile >> "CfgVehicles" >> typeOf _x,"maximumLoad",0] call BIS_fnc_returnConfigEntry) > 0) &&
     !(_x isKindOf "Static") &&
     {alive _x} &&
     {!(_x getVariable [QGVAR(isExcluded),false])} &&
@@ -45,6 +45,22 @@ _allContainers = _allContainers select {
         [_thisContainerHash,"varName",_vehVarName] call CBA_fnc_hashSet;
         _foundContainersVarnames deleteAt (_foundContainersVarnames find _vehVarName);
     };
+    private _vehicleVIVCargo = (isVehicleCargo _x);
+    private _vehicleVIVCargoID = "NO_ID_SET";
+    if (!isNull _vehicleVIVCargo) then {
+	    _vehicleVIVCargoID = _vehicleVIVCargo getVariable ["vehicle_cargo_id","NO_ID_SET"];
+	    if (_vehicleVIVCargoID isEqualTo "NO_ID_SET") then {
+		private _tempPos = getPosASL _vehicleVIVCargo;
+		_vehicleVIVCargoID = format ["%1_%2_%3_%4_%5",
+			typeOf (_vehicleVIVCargo),
+			floor((_tempPos select 0)*20),
+			floor((_tempPos select 1)*20),
+			floor((_tempPos select 2)*20),
+			floor(getDir _vehicleVIVCargo)
+		];
+		_vehicleVIVCargo setVariable ["vehicle_cargo_id",_vehicleVIVCargoID];
+	    };
+    };
 
     [_thisContainerHash,"type",typeOf _x] call CBA_fnc_hashSet;
     [_thisContainerHash,"posASL",getPosASL _x] call CBA_fnc_hashSet;
@@ -55,6 +71,7 @@ _allContainers = _allContainers select {
     [_thisContainerHash,"isGradMoneymenuStorage",_x getVariable ["grad_moneymenu_isStorage",false]] call CBA_fnc_hashSet;
     [_thisContainerHash,"gradMoneymenuOwner",_x getVariable ["grad_moneymenu_owner",objNull]] call CBA_fnc_hashSet;
     [_thisContainerHash,"gradLbmMoney",_x getVariable ["grad_lbm_myFunds",0]] call CBA_fnc_hashSet;
+    [_thisContainerHash,"VIVCargoID",_vehicleVIVCargoID] call CBA_fnc_hashSet;
 
     private _thisContainerVars = [_allContainerVariableClasses,_x] call FUNC(saveObjectVars);
     [_thisContainerHash,"vars",_thisContainerVars] call CBA_fnc_hashSet;

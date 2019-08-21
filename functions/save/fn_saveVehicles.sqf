@@ -45,8 +45,63 @@ private _allVehicles = vehicles select {
     };
 
     private _vehicleInventory = [_thisVehicle] call FUNC(getInventory);
-
+    private _vehicleVIVCargo = (isVehicleCargo _thisVehicle);
+    private _vehicleVIVCargoID = "NO_ID_SET";
+    if (!isNull _vehicleVIVCargo) then {
+	    _vehicleVIVCargoID = _vehicleVIVCargo getVariable ["vehicle_cargo_id","NO_ID_SET"];
+	    if (_vehicleVIVCargoID isEqualTo "NO_ID_SET") then {
+		private _tempPos = getPosASL _vehicleVIVCargo;
+		_vehicleVIVCargoID = format ["%1_%2_%3_%4_%5",
+			typeOf (_vehicleVIVCargo),
+			floor((_tempPos select 0)*20),
+			floor((_tempPos select 1)*20),
+			floor((_tempPos select 2)*20),
+			floor(getDir _vehicleVIVCargo)
+		];
+		_vehicleVIVCargo setVariable ["vehicle_cargo_id",_vehicleVIVCargoID];
+	    };
+    };
+    private _vehicleAnimSources = [];
+    private _vehicleCargoMode = vehicleCargoEnabled _thisVehicle;
+    private _vehicleSlingMode = ropeAttachEnabled _thisVehicle;
+    private _vehicleCamo = getObjectTextures _thisVehicle;
+    private _vehicleCargoID = _thisVehicle getVariable ["vehicle_cargo_id","NO_ID_SET"];
+    if (_vehicleCargoID isEqualTo "NO_ID_SET") then {
+        private _tempPos = getPosASL _thisVehicle;
+        _vehicleCargoID = format ["%1_%2_%3_%4_%5",
+		typeOf (_thisVehicle),
+		floor((_tempPos select 0)*20),
+		floor((_tempPos select 1)*20),
+		floor((_tempPos select 2)*20),
+		floor(getDir _thisVehicleo)
+	];
+        _thisVehicle setVariable ["vehicle_cargo_id",_vehicleCargoID];
+    };
+        
+   // private _lockedPassengers = [];
+    private _lockedCargo = [];
+    private _lockedDriver = lockedDriver _thisVehicle;
+    private _lockedTurret = [];
+    {
+	if ((_x select 1)=="cargo") then {
+		_lockedCargo pushBack [_x select 2,_thisVehicle lockedCargo (_x select 2)];
+	};
+	if ((_x select 1)=="Turret"||(_x select 1)=="gunner"||(_x select 1)=="commander") then {
+		_lockedTurret pushBack [_x select 3, _thisVehicle lockedTurret (_x select 3)];
+	};
+    } forEach (fullCrew [_thisVehicle,"",true]);
+    private _lockedCrew = [_lockedDriver,_lockedTurret,_lockedCargo];
     private _thisVehicleHash = [] call CBA_fnc_hashCreate;
+    
+
+    private _vehicleAnims = "getText (_x >> 'displayName')!=''" configClasses (configFile >> "cfgVehicles" >> (typeOf _thisVehicle) >> "AnimationSources");
+    {
+        _vehicleAnimSources pushBack [configName _x, (_thisVehicle animationSourcePhase (configName _x))];
+    } forEach _vehicleAnims;
+   // {
+   //     _lockedPassengers pushBack [_x,(_thisVehicle lockedCargo _x)];
+   // } forEach ((configFile >> "cfgVehicles" >> (typeOf _thisVehicle) >> "VIVPassengers") call bis_fnc_getCfgDataArray);
+
 
     private _vehVarName = vehicleVarName _thisVehicle;
     if (_vehVarName != "") then {
@@ -64,6 +119,13 @@ private _allVehicles = vehicles select {
     [_thisVehicleHash,"turretMagazines", magazinesAllTurrets _thisVehicle] call CBA_fnc_hashSet;
     [_thisVehicleHash,"inventory", _vehicleInventory] call CBA_fnc_hashSet;
     [_thisVehicleHash,"isGradFort",!isNil {_thisVehicle getVariable "grad_fortifications_fortOwner"}] call CBA_fnc_hashSet;
+    [_thisVehicleHash,"VIVCargoID",_vehicleVIVCargoID] call CBA_fnc_hashSet;
+    [_thisVehicleHash,"CargoID",_vehicleCargoID] call CBA_fnc_hashSet;
+    [_thisVehicleHash,"animationSources",_vehicleAnimSources] call CBA_fnc_hashSet;
+    [_thisVehicleHash,"CargoEnabled",_vehicleCargoMode] call CBA_fnc_hashSet;
+    [_thisVehicleHash,"SlingEnabled",_vehicleSlingMode] call CBA_fnc_hashSet;
+    [_thisVehicleHash,"lockedCrew",_lockedCrew] call CBA_fnc_hashSet;
+    [_thisVehicleHash,"hiddenSelections",_vehicleCamo] call CBA_fnc_hashSet;
 
 
     private _thisVehicleVars = [_allVehicleVariableClasses,_thisVehicle] call FUNC(saveObjectVars);

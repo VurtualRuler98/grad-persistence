@@ -41,6 +41,11 @@ private _staticsData = [_staticsTag] call FUNC(getSaveData);
         private _isGradMoneymenuStorage = [_thisStaticHash,"isGradMoneymenuStorage"] call CBA_fnc_hashGet;
         private _gradMoneymenuOwner = [_thisStaticHash,"gradMoneymenuOwner"] call CBA_fnc_hashGet;
         private _thisLbmMoney = [_thisStaticHash,"gradLbmMoney"] call CBA_fnc_hashGet;
+    	private _vehicleVIVCargoID = [_thisStaticHash,"VIVCargoID"] call CBA_fnc_hashGet;
+        if (_vehicleVIVCargoID != "NO_ID_SET") then {
+		grad_viv_cargo_array pushBack [_thisStatic,_vehicleVIVCargoID];
+		_thisStatic hideObject true;
+        };
 
         _thisStatic setVectorDirAndUp _vectorDirAndUp;
         _thisStatic setPosASL _posASL;

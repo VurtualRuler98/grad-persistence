@@ -49,10 +49,27 @@ private _vehiclesData = [_vehiclesTag] call grad_persistence_fnc_getSaveData;
         private _turretMagazines = [_thisVehicleHash,"turretMagazines"] call CBA_fnc_hashGet;
         private _inventory = [_thisVehicleHash,"inventory"] call CBA_fnc_hashGet;
         private _isGradFort = [_thisVehicleHash,"isGradFort"] call CBA_fnc_hashGet;
+    	private _vehicleVIVCargoID = [_thisVehicleHash,"VIVCargoID"] call CBA_fnc_hashGet;
+    	private _vehicleCargoID = [_thisVehicleHash,"CargoID"] call CBA_fnc_hashGet;
+        private _vehicleAnimSources = [_thisVehicleHash,"animationSources"] call CBA_fnc_hashGet;
+        private _vehicleCargoMode = [_thisVehicleHash,"CargoEnabled"] call CBA_fnc_hashGet;
+        private _vehicleSlingMode = [_thisVehicleHash,"SlingEnabled"] call CBA_fnc_hashGet;
+        private _lockedCrew = [_thisVehicleHash,"lockedCrew"] call CBA_fnc_hashGet;
+	private _hiddenSelections = [_thisVehicleHash,"hiddenSelections"] call CBA_fnc_hashGet;
 
         _thisVehicle setVectorDirAndUp _vectorDirAndUp;
         _thisVehicle setPosASL _posASL;
         _thisVehicle setFuel _fuel;
+
+	_thisVehicle lockDriver (_lockedCrew select 0);
+	{_thisVehicle lockTurret _x} forEach (_lockedCrew select 1);
+	{_thisVehicle lockCargo _x} forEach (_lockedCrew select 2);
+
+        _thisVehicle enableRopeAttach _vehicleSlingMode;
+        _thisVehicle enableVehicleCargo _vehicleCargoMode;
+        { _thisVehicle animateSource [_x select 0,_x select 1,true] } forEach _vehicleAnimSources;
+        //{ _thisVehicle lockCargo [_x select 0, _x select 1] } forEach _lockedPassengers;
+	{ _thisVehicle setObjectTexture [_forEachIndex,_x] } forEach _hiddenSelections;
 
         [_thisVehicle,_turretMagazines] call grad_persistence_fnc_loadTurretMagazines;
         [_thisVehicle,_hitPointDamage] call grad_persistence_fnc_loadVehicleHits;
@@ -64,6 +81,13 @@ private _vehiclesData = [_vehiclesTag] call grad_persistence_fnc_getSaveData;
 
         private _vars = [_thisVehicleHash,"vars"] call CBA_fnc_hashGet;
         [_vars,_thisVehicle] call FUNC(loadObjectVars);
+        _thisVehicle setVariable ["vehicle_cargo_id",_vehicleCargoID];
+        if (_vehicleVIVCargoID != "NO_ID_SET") then {
+		grad_viv_cargo_array pushBack [_thisVehicle,_vehicleVIVCargoID];
+		_thisVehicle hideObject true;
+        };
+        grad_viv_carrier_array pushBack [_thisVehicle,_vehicleCargoID];
+
 
     }, [_thisVehicle,_thisVehicleHash]] call CBA_fnc_waitUntilAndExecute;
 

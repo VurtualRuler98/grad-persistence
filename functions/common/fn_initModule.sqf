@@ -5,7 +5,8 @@
 ["gradpersistenceLoad", {
     [] remoteExec ["grad_persistence_fnc_loadMission",2,false];
 }, "adminLogged"] call CBA_fnc_registerChatCommand;
-
+grad_viv_cargo_array = [];
+grad_viv_carrier_array = [];
 if (isServer) then {
     
     // server side player loading disabled in favor of player side load request

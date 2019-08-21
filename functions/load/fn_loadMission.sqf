@@ -23,6 +23,22 @@ if (_saveTasks) then {[] call FUNC(loadTasks)};
 
 private _saveTriggers = ([missionConfigFile >> "CfgGradPersistence", "saveTriggers", 0] call BIS_fnc_returnConfigEntry) > 0;
 if (_saveTriggers) then {[] call FUNC(loadTriggers)};
+[] spawn {
+	 waitUntil {time > 0};
+	{
+		_veh = (_x select 0);
+		_veh_id = (_x select 1);
+		{
+			if ((_x select 1)==_veh_id) then {
+				_loaded = _veh setVehicleCargo (_x select 0);
+				if (!_loaded) then {
+					(_x select 0) setVehiclePosition [(_x select 0),[],1,"NONE"];
+				};
+			};
+		} forEach grad_viv_cargo_array;
+	} forEach grad_viv_carrier_array;
+	{(_x select 0) hideObject false;} forEach grad_viv_cargo_array;
+};
 
 INFO("mission loaded");
 "grad-persistence: mission loaded" remoteExec ["systemChat",0,false];

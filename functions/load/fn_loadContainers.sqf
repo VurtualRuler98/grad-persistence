@@ -43,6 +43,11 @@ private _containersData = [_containersTag] call FUNC(getSaveData);
         private _isGradMoneymenuStorage = [_thisContainerHash,"isGradMoneymenuStorage"] call CBA_fnc_hashGet;
         private _gradMoneymenuOwner = [_thisContainerHash,"gradMoneymenuOwner"] call CBA_fnc_hashGet;
         private _thisLbmMoney = [_thisContainerHash,"gradLbmMoney"] call CBA_fnc_hashGet;
+    	private _vehicleVIVCargoID = [_thisContainerHash,"VIVCargoID"] call CBA_fnc_hashGet;
+        if (_vehicleVIVCargoID != "NO_ID_SET") then {
+		grad_viv_cargo_array pushBack [_thisContainer,_vehicleVIVCargoID];
+		_thisContainer hideObject true;
+        };
 
         _thisContainer setVectorDirAndUp _vectorDirAndUp;
         _thisContainer setPosASL _posASL;
