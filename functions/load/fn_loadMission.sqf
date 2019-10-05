@@ -40,5 +40,8 @@ if (_saveTriggers) then {[] call FUNC(loadTriggers)};
 	{(_x select 0) hideObject false;} forEach grad_viv_cargo_array;
 };
 
+private _saveTimeAndDate = ([missionConfigFile >> "CfgGradPersistence", "saveTimeAndDate", 0] call BIS_fnc_returnConfigEntry) > 0;
+if (_saveTimeAndDate) then {[] call FUNC(loadTimeAndDate)};
+
 INFO("mission loaded");
 "grad-persistence: mission loaded" remoteExec ["systemChat",0,false];
